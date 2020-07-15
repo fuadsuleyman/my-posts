@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  margin-top: 1rem;
+}
+
+.text-info{
+  text-align: center;
+}
+
+mat-icon{
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+mat-spinner{
+  margin: auto;
+  width: 14px;
+  height: 14px;
+}

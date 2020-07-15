@@ -1,0 +1,42 @@
+<!-- ngSubmit -i yigisdirdim, asagida button tipini button etdim, asagidaki linkdeki kimi-->
+ <!-- https://stackoverflow.com/questions/49788215/angular-material-reseting-reactiveform-shows-validation-error -->
+ <mat-spinner *ngIf='isLoading' color='accent' [diameter]="60"></mat-spinner>
+ <mat-card class="example-card" *ngIf='!isLoading'>
+ <form class="example-form" [formGroup]="postForm">
+    <mat-form-field class="example-full-width">
+      <mat-label>Post Title</mat-label>
+      <input
+        matInput
+        placeholder="Enter here..."
+        formControlName="title">
+        <mat-error *ngIf="title.invalid && title.touched">{{getErrorMessage()}}</mat-error>
+    </mat-form-field>
+    <div>
+        <button mat-stroked-button color='accent' (click)='filePicker.click()'>Pick Image</button>
+        <input type="file" #filePicker (change)='onImagePicker($event)'>
+    </div>
+    <!-- yuxarida inputu css-le hidden etdim, buttona click edende input basilir -->
+    <div class="image-preview" *ngIf="imagePreview !== '' && imagePreview && image.valid">
+        <img [src]="imagePreview" [alt]="image">
+    </div>
+    <mat-error *ngIf="image.invalid && title.touched">{{getErrorMessage()}}</mat-error>
+    <mat-form-field class="example-full-width">
+      <mat-label>Write Post</mat-label>
+      <textarea
+        matInput
+        placeholder="Enter here..."
+        formControlName="content"
+        ></textarea>
+        <mat-error *ngIf="title.invalid && title.touched">{{getErrorMessage()}}</mat-error>
+    </mat-form-field>
+    <div>
+      <button
+        (click)="onSavePost()"
+        mat-raised-button
+        color="accent"
+        type="button"
+        [disabled]="!postForm.valid">Save Post</button>
+    </div>
+
+  </form>
+</mat-card>
