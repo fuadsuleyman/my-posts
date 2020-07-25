@@ -5,23 +5,26 @@
     </button>
   </div>
   <div>
-    <a mat-button routerLink="/" routerLinkActive="active">My Blog</a>
+    <a mat-button routerLink="/" routerLinkActive="mat-accent">My Blog</a>
   </div>
   <div fxFlex fxLayout fxLayoutAlign="end" fxHide.xs>
     <span class="spacer"></span>
     <ul fxLayout fxLayoutGap="15px" class="navigation-items">
       <li>
-        <a mat-button routerLink="/" routerLinkActive="active">Posts</a>
+        <a mat-button routerLink="/" routerLinkActive="mat-accent">Posts</a>
       </li>
-      <li>
-        <a mat-button routerLink="/post-create" routerLinkActive="active">Create Post</a>
+      <li *ngIf="userIsAuthenticated">
+        <a mat-button routerLink="/post-create" routerLinkActive="mat-accent">Create Post</a>
       </li>
       <span class="spacer"></span>
-      <li>
-        <a mat-button routerLink="/login" routerLinkActive="active">Login</a>
+      <li *ngIf="!userIsAuthenticated">
+        <a mat-button routerLink="/auth/login" routerLinkActive="mat-accent">Login</a>
       </li>
-      <li>
-        <a mat-button routerLink="/register" routerLinkActive="active">Register</a>
+      <li *ngIf="!userIsAuthenticated">
+        <a mat-button routerLink="/auth/signup" routerLinkActive="mat-accent">Signup</a>
+      </li>
+      <li *ngIf="userIsAuthenticated">
+        <button mat-button (click)="onLogout()">Logout</button>
       </li>
     </ul>
   </div>

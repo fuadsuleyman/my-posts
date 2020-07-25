@@ -7,6 +7,7 @@
       <mat-label>Post Title</mat-label>
       <input
         matInput
+        required
         placeholder="Enter here..."
         formControlName="title">
         <mat-error *ngIf="title.invalid && title.touched">{{getErrorMessage()}}</mat-error>
@@ -24,6 +25,7 @@
       <mat-label>Write Post</mat-label>
       <textarea
         matInput
+        required
         placeholder="Enter here..."
         formControlName="content"
         ></textarea>
@@ -37,6 +39,5 @@
         type="button"
         [disabled]="!postForm.valid">Save Post</button>
     </div>
-
   </form>
 </mat-card>

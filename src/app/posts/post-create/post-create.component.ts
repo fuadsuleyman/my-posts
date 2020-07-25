@@ -1,16 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { PostStorageService } from '../post-storage.service'
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Post } from '../post.model';
 import { mimeType } from './mime-type.validator';
+import { Subscription } from 'rxjs';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-post-create',
   templateUrl: './post-create.component.html',
   styleUrls: ['./post-create.component.css']
 })
-export class PostCreateComponent implements OnInit {
+export class PostCreateComponent implements OnInit, OnDestroy {
 
   private mode = 'create';
   private postId: string;
@@ -18,18 +20,28 @@ export class PostCreateComponent implements OnInit {
   isLoading = false;
   post: Post;
   postForm: FormGroup;
+  private authStatusSub: Subscription;
 
   constructor(
     private postStorageService: PostStorageService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
     ) { }
 
     // setValue update vaxti geri qaytarir melumatlari forma
-  ngOnInit(): void {
+  ngOnInit() {
+    this.authStatusSub = this.authService.getAuthStatusListener()
+    .subscribe(authStatus => {
+      this.isLoading = false;
+    })
     this.postForm = new FormGroup({
-      'title': new FormControl('', [Validators.required, Validators.minLength(3)]),
-      'content': new FormControl('', [Validators.required]),
-      'image': new FormControl('', { validators: [Validators.required], asyncValidators: [mimeType]})
+      'title': new FormControl(null, [Validators.required, Validators.minLength(3)]),
+      'content': new FormControl(null, [Validators.required]),
+      'image': new FormControl(null,
+        {
+          validators: [Validators.required],
+          asyncValidators: [mimeType]
+        })
     });
     this.route.paramMap.subscribe((paramMap: ParamMap) =>{
       if(paramMap.has('postId')) {
@@ -39,8 +51,17 @@ export class PostCreateComponent implements OnInit {
         this.postStorageService.getpost(this.postId)
         .subscribe(postData => {
           this.isLoading = false;
-          this.post = {id: postData._id, title: postData.title, content: postData.content}
-          this.postForm.setValue({'title': this.post.title, 'content': this.post.content})
+          this.post = {
+            id: postData._id,
+            title: postData.title,
+            content: postData.content,
+            imagePath: postData.imagePath,
+            creator: postData.creator}
+          this.postForm.setValue({
+            'title': this.post.title,
+            'content': this.post.content,
+            'image': this.post.imagePath
+          })
         });
       } else {
         this.mode = 'create';
@@ -52,8 +73,8 @@ export class PostCreateComponent implements OnInit {
 
   get title() { return this.postForm.get('title'); }
   get content() { return this.postForm.get('content'); }
-  get image() { return this.postForm.get('image'); }
 
+  get image() { return this.postForm.get('image'); }
   postsArr = [];
 
   tepmStr: string;
@@ -64,9 +85,16 @@ export class PostCreateComponent implements OnInit {
     }
     this.isLoading = true;
     if(this.mode === 'create'){
-      this.postStorageService.savePost(this.postForm.value.title, this.postForm.value.content);
+      this.postStorageService.savePost(
+        this.postForm.value.title,
+        this.postForm.value.content,
+        this.postForm.value.image);
     } else {
-      this.postStorageService.updatePost(this.postId, this.postForm.value.title, this.postForm.value.content);
+      this.postStorageService.updatePost(
+        this.postId,
+        this.postForm.value.title,
+        this.postForm.value.content,
+        this.postForm.value.image);
     }
     // asagidaki 2 deneni setri yazdimki resetden sonra qirmizi olmasin
     this.postForm.markAsPristine();
@@ -76,13 +104,17 @@ export class PostCreateComponent implements OnInit {
 
   onImagePicker(event: Event){
     const file = (event.target as HTMLInputElement).files[0];
-    this.postForm.patchValue({'image': file});
+    this.postForm.patchValue({image: file});``
     this.postForm.get('image').updateValueAndValidity();
     const reader = new FileReader();
     reader.onload = () => {
       this.imagePreview = reader.result as string;
     };
     reader.readAsDataURL(file);
+  }
+
+  ngOnDestroy(){
+    this.authStatusSub.unsubscribe();
   }
 
   getErrorMessage() {

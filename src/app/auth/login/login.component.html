@@ -1,0 +1,38 @@
+<!-- ngSubmit -i yigisdirdim, asagida button tipini button etdim, asagidaki linkdeki kimi-->
+ <!-- https://stackoverflow.com/questions/49788215/angular-material-reseting-reactiveform-shows-validation-error -->
+ <div class="main-div">
+ <mat-spinner *ngIf='isLoading' color='accent' [diameter]="60"></mat-spinner>
+ <mat-card class="example-card" *ngIf='!isLoading'>
+ <form class="example-form" [formGroup]="loginForm">
+    <mat-form-field class="example-full-width">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        required
+        placeholder="Enter here..."
+        formControlName="email">
+        <mat-error *ngIf="email.invalid && email.touched">{{getErrorMessageEmail()}}</mat-error>
+    </mat-form-field>
+    <mat-form-field class="example-full-width">
+      <mat-label>Password</mat-label>
+      <input
+        matInput
+        required
+        type="password"
+        placeholder="Enter here..."
+        formControlName="password">
+        <mat-error *ngIf="password.invalid && password.touched">{{getErrorMessagePassword()}}</mat-error>
+    </mat-form-field>
+    <div>
+      <button
+        (click)="onLogin()"
+        mat-raised-button
+        color="accent"
+        type="button"
+        [disabled]="!loginForm.valid"
+        >Login</button>
+    </div>
+  </form>
+</mat-card>
+</div>
+

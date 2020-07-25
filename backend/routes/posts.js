@@ -2,63 +2,30 @@ const express = require('express');
 
 const router = express.Router();
 
-const Post = require('../models/post');
+const postsControllers = require('../controllers/posts');
+
+const checkAuth = require('../middleware/check-auth');
+const extractFile = require('../middleware/file');
 
 // update request
-router.put("/:id", (req, res, next) => {
-  const post = new Post({
-    _id: req.body.id,
-    title: req.body.title,
-    content: req.body.content
-});
-  Post.updateOne({_id: req.params.id}, post).then(result => {
-    console.log(result);
-    res.status(201).json({message: 'Updated successful!'})
-  })
-});
+router.put("/:id",
+  checkAuth,
+  extractFile, postsControllers.updatePost);
 
-router.get("/:id", (req, res, next) => {
-  Post.findById(req.params.id).then(post => {
-    if(post){
-      res.status(200).json(post);
-    } else {
-      res.status(404).json({message: 'Post not found!'});
-    }
-  })
-})
+router.get("/:id", postsControllers.getPost);
 
 // post request
-router.post("", (req, res, next) => {
-  const post = new Post({
-    title: req.body.title,
-    content: req.body.content
-  });
-  post.save().then(createdPost => {
-    res.status(201).json({
-      message: "Post added successfully",
-      postId: createdPost._id})
-  });
-})
+router.post("",
+  checkAuth,
+  extractFile, postsControllers.creatPosts);
 
 // this is GET request, use evezine get de yazmaq olar
 // changes app.use ni app.get ile evez eledim
-router.get("", (req, res, next) => {
-  Post.find().then(documents => {
-    res.status(200).json({
-      message: 'Posts fetched successfully',
-      posts: documents
-    })
-  })
-});
+// paginator logic here
+// skip is skip previus pages
+router.get("", postsControllers.getPosts);
 
 // delete request
-router.delete("/:id", (req, res, next) => {
-  Post.deleteOne({_id: req.params.id}).then(result => {
-    console.log(result);
-    console.log(req.params.id);
-    res.status(200).json({ message: "Post deleted!"});
-  })
-});
-
+router.delete("/:id", checkAuth, postsControllers.deletePost);
 
 module.exports = router;
